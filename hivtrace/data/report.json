@@ -1,0 +1,105 @@
+{
+    "Cluster sizes": [
+        2,
+        2
+    ],
+    "Degrees": {
+        "Distribution": [
+            4
+        ],
+        "Model": "Pareto",
+        "fitted": null,
+        "rho": 53.66790117478374,
+        "rho CI": [
+            1.4945859030008857,
+            10000.0
+        ]
+    },
+    "Directed Edges": {
+        "Count": 0,
+        "Reasons for unresolved directions": {
+            "Missing dates": 2
+        }
+    },
+    "Edges": [
+        {
+            "attributes": [
+                "BULK"
+            ],
+            "directed": false,
+            "length": 0.00355932,
+            "removed": false,
+            "sequences": [
+                "GA00HHARS001656*",
+                "GA00HHARS001668*"
+            ],
+            "source": 0,
+            "support": 0.0,
+            "target": 1
+        },
+        {
+            "attributes": [
+                "BULK"
+            ],
+            "directed": false,
+            "length": 0.00140815,
+            "removed": false,
+            "sequences": [
+                "GA00HHARS002033*",
+                "GA00HHARS002034*"
+            ],
+            "source": 2,
+            "support": 0.0,
+            "target": 3
+        }
+    ],
+    "HIV Stages": {
+        "Unknown": 4
+    },
+    "Multiple sequences": {
+        "Followup, days": null,
+        "Subjects with": 0
+    },
+    "Network Summary": {
+        "Clusters": 2,
+        "Edges": 2,
+        "Nodes": 4,
+        "Sequences used to make links": 4
+    },
+    "Nodes": [
+        {
+            "attributes": [],
+            "baseline": null,
+            "cluster": 1,
+            "edi": null,
+            "id": "GA00HHARS001656*"
+        },
+        {
+            "attributes": [],
+            "baseline": null,
+            "cluster": 1,
+            "edi": null,
+            "id": "GA00HHARS001668*"
+        },
+        {
+            "attributes": [],
+            "baseline": null,
+            "cluster": 2,
+            "edi": null,
+            "id": "GA00HHARS002033*"
+        },
+        {
+            "attributes": [],
+            "baseline": null,
+            "cluster": 2,
+            "edi": null,
+            "id": "GA00HHARS002034*"
+        }
+    ],
+    "Settings": {
+        "contaminants": null,
+        "edge-filtering": "remove",
+        "singletons": true,
+        "threshold": 0.015
+    }
+}

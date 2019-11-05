@@ -1,0 +1,150 @@
+
+from hivtrace_temp import rename_duplicates
+from strip_drams_temp import strip_drams
+
+'''
+BEALIGN:
+takes these flags:  -q (quiet, do not print status updates)
+                    -r (reference)
+                    -m (score matrix)
+                    -R (also align the reverse complement of each query sequence, 
+                        returning it if the alignment is superior)
+                    input (input)
+                    output (output)
+                    -K (include the reference sequence as the first one in the resulting BAM file 
+                        [the default is to strip it])
+
+'''
+rule one:
+    message: "BEALIGN:\n \t --> Align sequences to a reference using "
+            "a codon alignemnt algorithm and output to a BAM file "
+    params:
+        score_matrix = 'HIV_BETWEEN_F',
+        reference = 'HXB2_prrt'
+    input:
+        fasta_seqs = "../test/rsrc/small_test.fasta"
+    output:
+        BAM = "data/blah.bam"
+    shell:
+        "BEALIGN -q -r {params.reference} -m {params.score_matrix} -R {input.fasta_seqs} {output.BAM}"
+
+
+'''
+BAM2MSA:
+takes these flags:  -r (only include sequences in certein REGION)
+                    input (input BAM)
+                    output (output MSA fasta file)
+'''
+rule two: 
+    message: "BAM2MSA:\n \t -->Converting BAM file to MSA, removing insertions"
+
+    input:
+        rules.one.output.BAM
+    output:
+        fasta='data/some_new.fasta'
+    shell:
+        "BAM2MSA {input} {output.fasta}"
+
+'''
+rename_duplicates:
+takes these arguments:
+                    input (input FASTA)
+                    delimiter (how you want the file delimited)
+                    output (output duplicate renamed fasta file)
+'''
+rule three:
+    message: "Clean up the fasta file by renaming the dulicates"
+    params:
+        delimiter=","
+    input:
+        rules.two.output.fasta
+    output:
+        cleaned="data/clean_fasta.fasta.tmp"
+    run:
+        rename_duplicates(input, params.delimiter, output)
+##############
+
+
+'''
+IF USER DESIRES
+this rule strips DRAMs 
+'''
+rule four:
+    message: "Strip DRAMs (drug resistant associated mutations)"
+            " It will output a new alignment with these sites removed."
+            " It requires input/output file names along with the list of"
+            " DRAM sites to remove: 'lewis' or 'wheeler'."
+    params:
+        dram_type_lewis='lewis',
+        dram_type_wheeler='wheeler'
+    input:
+        rules.three.output.cleaned
+    output:
+        stripped="data/stripped_drams.fasta"
+    run:
+        strip_drams(input, params.dram_type_lewis, output.stripped)
+    
+'''
+TN93
+these are the flags
+not working yet
+- contams sometimes different lengths of sequence
+'''
+
+rule five:
+    message: "Filter contaminants using: TN93:\n \t --> "
+            " this is blah blah blah"
+    params:
+        file_format = "csv",
+        #reference = "HXB2_prrt",
+        csv="fake.csv"
+    input:
+        fasta=rules.four.output.stripped,
+        reference="rsrc/HXB2_prrt.fa"
+    output:
+        json="data/tn93_contams.json"
+    shell:
+        "TN93 -q -o {params.csv} -t 0.015 -a resolve -l 500 -g 1.0 -s {input.reference} -f {params.file_format} {input.fasta} > {output.json}"
+
+'''
+this is the tn93 run on just the user input fasta file
+
+'''
+rule six:
+    message: "TN93:\n \t -->"
+    params:
+        file_format = "csv"
+        #csv="data/real.csv"
+    input:
+        fasta=rules.four.output.stripped
+    output:
+        json="data/tn93.json",
+        csv="data/real.csv"
+    shell:
+        "tn93 -q -o {output.csv} -t .015 -a resolve -l 500 -g .05 -f {params.file_format} {input.fasta} > {output.json}"
+
+
+rule seven:
+    message: "this will use hivnetworkcsv to cluster from the tn93 output"
+    input:
+        fasta=rules.four.output.stripped,
+        json=rules.six.output.json,
+        ## need to call it this way because now it has been populated after being initialized from the params of rule six ##
+        csv=rules.six.output.csv
+    output:
+        report="data/report.json"
+    shell:
+        "hivnetworkcsv -i {input.csv} -t .015 -f plain -j -o -n remove -s {input.fasta} -l --cycle-report-file {input.json} > {output.report}"
+
+
+
+
+
+
+
+
+
+
+
+
+
